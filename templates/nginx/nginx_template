@@ -1,0 +1,34 @@
+upstream concorde {
+    server unix:///var/www/concordepearl/concorde.sock; # for a web port socket (we'll use this first)
+}
+
+server {
+   listen 80;
+   listen [::]:80;
+
+        server_name concordepearls.com;
+   client_max_body_size 70m;
+   client_body_buffer_size 128k;
+        # SSL
+    #ssl_certificate /etc/letsencrypt/live/www.node8.site/fullchain.pem;
+    #ssl_certificate_key /etc/letsencrypt/live/www.node8.site/privkey.pem;
+    #ssl_trusted_certificate /etc/letsencrypt/live/www.node8.site/chain.pem;
+
+    #return 301 https://www.node8.site$request_uri;
+
+     location / {
+        uwsgi_pass  concorde;
+        include     uwsgi_params; # the uwsgi_params file you installed
+        proxy_send_timeout 900s;
+        proxy_read_timeout 900s;
+    }
+
+    location /static {
+        autoindex on;
+        alias /var/www/concordepearl/static;
+    }
+
+    location /media {
+        alias /var/www/concordepearl/media;
+    }
+}
